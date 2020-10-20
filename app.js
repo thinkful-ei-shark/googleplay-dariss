@@ -11,19 +11,31 @@ const appData = require('./playstore.js');
 app.get('/apps', (req, res) => {
 
   const {sort , genres} = req.query;
-
-  let results = appData.filter(app =>
-    appData
-      .sort
-      .toLowerCase()
-      .includes(sort.toLowerCase())); 
-
-
-  //if statements
-
-  res
-    .json(appData);
-
+  const listOfGenres = [
+    'action',
+    'puzzle',
+    'strategy',
+    'casual',
+    'arcade',
+    'card'
+  ];
+  if(sort){
+    if(!['rating', 'app'].includes(sort)){
+      return res.status(400).send('Must be rating or app');
+    }
+  }
+  if(!listOfGenres.includes(genres)){
+    return res.status(400).send('Invalid genre');
+  }
+  let results = appData.filter((store) =>
+    store.Genres.toLowerCase().includes(genres.toLowerCase())
+  );
+  if(sort){
+    results.sort((a, b) => {
+      return a(sort) > b(sort) ? 1 : a(sort) < b(sort) ? -1 : 0;
+    });
+  }
+  res.json(results);
 });
 
 app.listen(8000, () => {
